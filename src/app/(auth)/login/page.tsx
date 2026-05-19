@@ -3,7 +3,7 @@ import { loginUser } from "@/lib/authAction";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LoginButton } from "./LoginButton"; // Button component import karein
+import { LoginButton } from "./LoginButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,14 +17,26 @@ export default function LoginPage() {
     }
 
     try {
-      const { role, error } = await loginUser(email, password);
+      const { user, role, error } = await loginUser(email, password);
 
       if (error) {
         alert(error);
-      } else {
-        if (role === "VENDOR") router.push("/vendor-dashboard");
-        else if (role === "ADMIN") router.push("/admin");
-        else router.push("/");
+      } else if (user && role) {
+        // 🔹 FIX: Server Middleware ke liye Browser me Cookies set karein
+        // Real-world me session token secure hona chahiye, abhi ke liye UID use kar rahe hain
+        document.cookie = `session-token=${user.uid}; path=/; max-age=86400; SameSite=Lax; Secure`;
+        document.cookie = `user-role=${role}; path=/; max-age=86400; SameSite=Lax; Secure`;
+
+        // 🔹 Ab router navigation perfect chalegi aur middleware block nahi karega
+        if (role === "VENDOR") {
+          router.push("/vendor-dashboard");
+        } else if (role === "ADMIN") {
+          router.push("/admin");
+        } else if (role === "USER") {
+          router.push("/user-dashboard");
+        } else {
+          router.push("/");
+        }
       }
     } catch (err) {
       console.error("Login Error:", err);
@@ -41,25 +53,12 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Input 
-                type="email" 
-                name="email" // FormData isse pehchane ga
-                placeholder="Email" 
-                required 
-              />
+              <Input type="email" name="email" placeholder="Email" required />
             </div>
             <div className="space-y-2">
-              <Input 
-                type="password" 
-                name="password" // FormData isse pehchane ga
-                placeholder="Password" 
-                required 
-              />
+              <Input type="password" name="password" placeholder="Password" required />
             </div>
-            
-            {/* 👈 Ye hamara naya Button component hai */}
             <LoginButton />
-            
           </CardContent>
         </Card>
       </form>

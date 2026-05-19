@@ -41,4 +41,10 @@ export const loginUser = async (email: string, pass: string) => {
 
 export const logoutUser = async () => {
   await signOut(auth);
+  
+  // 🔹 Logout par cookies ko expire kardo
+  if (typeof window !== "undefined") {
+    document.cookie = "session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "user-role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  }
 };
