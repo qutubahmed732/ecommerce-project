@@ -76,7 +76,7 @@ export default function SuccessPage() {
   // ⏳ 2. JAB TAK DATABASE MEIN SAVE NAHI HOTA, YEH SCREEN RUKHI RAHEGI
   if (isSaving) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh]">
+      <div className="success-page flex flex-col items-center justify-center">
         <Loader2 className="h-12 w-12 text-blue-600 animate-spin mb-4" />
         <h2 className="text-xl font-semibold text-slate-700">Securing your order...</h2>
         <p className="text-slate-500 mt-1">Please wait, saving your order details into our database.</p>
@@ -87,7 +87,7 @@ export default function SuccessPage() {
   // ❌ 3. AGAR DATABASE MEIN SAVE FAIL HO JAYE
   if (saveError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] px-4">
+      <div className="success-page flex flex-col items-center justify-center px-4">
         <div className="bg-rose-50 p-6 rounded-full mb-6">
           <XCircle size={60} className="text-rose-500" />
         </div>
@@ -104,14 +104,14 @@ export default function SuccessPage() {
 
   // 🎉 4. JAB PROPERLY SAVE HO JAYE, TOH YEH FINAL UI DIKHAO
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 animate-in fade-in zoom-in duration-500">
+    <div className="success-page flex flex-col items-center justify-center px-4 animate-in fade-in zoom-in duration-500">
       <div className="bg-green-50 p-6 rounded-full mb-6">
         <CheckCircle2 size={60} className="text-green-500 animate-bounce" />
       </div>
       
       <h1 className="text-4xl font-extrabold text-slate-900 mb-2">Order Confirmed!</h1>
       <p className="text-slate-600 mb-8 text-center max-w-md text-lg">
-        Woohoo! Aapka order mil gaya hai. Aapki payment successful rahi aur order database mein kamiyabi se save ho chuka hai.
+        Your order is confirmed and your payment was successful. We have saved your order details.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4">

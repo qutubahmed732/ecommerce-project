@@ -8,7 +8,7 @@ export function LoginButton() {
   return (
     <Button 
       type="submit" 
-      className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+      className="auth-submit" 
       disabled={pending}
     >
       {pending ? "Logging in..." : "Login"}
