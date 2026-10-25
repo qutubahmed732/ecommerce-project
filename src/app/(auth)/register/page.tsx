@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUpUser } from "@/lib/authAction";
+import { getAuthenticatedDestination } from "@/lib/authRedirect";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -13,22 +15,54 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const { user, role: signedInRole, loading: authLoading } = useAuthStore();
+
+  useEffect(() => {
+    if (!authLoading && user && !isSubmitting) {
+      router.replace(getAuthenticatedDestination(signedInRole));
+    }
+  }, [authLoading, user, signedInRole, isSubmitting, router]);
 
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email || !password || !fullName) return alert("Please fill all fields");
 
     setLoading(true);
-    const { error } = await signUpUser(email, password, fullName, role);
-    setLoading(false);
+    setIsSubmitting(true);
+    let redirecting = false;
+    try {
+      const { user: createdUser, error } = await signUpUser(email, password, fullName, role);
+      if (error) {
+        alert(error);
+        return;
+      }
+      if (!createdUser) return;
 
-    if (error) alert(error);
-    else {
-      alert("Account created successfully!");
-      router.push("/login");
+      const secure = window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `session-token=${createdUser.uid}; path=/; max-age=86400; SameSite=Lax${secure}`;
+      document.cookie = `user-role=${role}; path=/; max-age=86400; SameSite=Lax${secure}`;
+      redirecting = true;
+      router.replace(getAuthenticatedDestination(role));
+    } catch (error) {
+      console.error("Registration failed:", error);
+      alert("Something went wrong while creating your account.");
+    } finally {
+      setLoading(false);
+      if (!redirecting) setIsSubmitting(false);
     }
   };
+
+  if (authLoading || (user && !isSubmitting)) {
+    return (
+      <main className="route-loader" aria-label="Checking your account">
+        <span className="route-loader-mark">QUTUB<span>.</span></span>
+        <span className="route-loader-line"><i /></span>
+        <p>CHECKING YOUR ACCOUNT</p>
+      </main>
+    );
+  }
 
   return (
     <main className="auth-page">
